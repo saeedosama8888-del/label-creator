@@ -244,10 +244,11 @@ const generateScanBarcode = (trackingNum) => {
 
     bwipjs.toCanvas(canvas, {
       bcid: "code128",
-      text: scanCode,
+      text: "^FNC1" + scanCode,
       scale: 3,
       height: 18,
       includetext: false,
+      parsefnc: true,
     });
     return { dataUrl: canvas.toDataURL(), code: scanCode };
   } catch (error) {
