@@ -65,12 +65,8 @@ const styles = StyleSheet.create({
 });
 
 const USPS_Ground_Advantage_Copy = ({ csvData }) => {
-  const getCurrentMonthYearFormatted = () => {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
-    const date = currentDate.getDate().toString().padStart(2, "0");
-    return `${month}/${date}/${year}`;
+  const getCurrentMonthYearFormatted = (dataRow) => {
+    return extractShippingDate(dataRow);
   };
 
   const generateBarCodeTwoImage = (barcodeValueFour) => {
@@ -277,7 +273,7 @@ const USPS_Ground_Advantage_Copy = ({ csvData }) => {
                           marginTop: 3,
                         }}
                       >
-                        <Text>{getCurrentMonthYearFormatted()}</Text>
+                        <Text>{getCurrentMonthYearFormatted(data)}</Text>
                         <Text>Mailed From {data[6]}</Text>
                         <Text>WT: {data[16]}.00 LB</Text>
                       </View>
