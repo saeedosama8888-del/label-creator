@@ -7,6 +7,8 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Choose an
   const [showOnlyUSPS, setShowOnlyUSPS] = useState(false);
   const [showOnlyUPS, setShowOnlyUPS] = useState(false);
   const [showOnlySlip, setShowOnlySlip] = useState(false);
+  const [showOnlyScanForm, setShowOnlyScanForm] = useState(false);
+  const [showOnlyCubic, setShowOnlyCubic] = useState(false);
   const containerRef = useRef(null);
   const searchInputRef = useRef(null);
 
@@ -48,13 +50,15 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Choose an
     }
   };
 
-  const isAllActive = !showOnlyCopy && !showOnlyUSPS && !showOnlyUPS && !showOnlySlip;
+  const isAllActive = !showOnlyCopy && !showOnlyUSPS && !showOnlyUPS && !showOnlySlip && !showOnlyScanForm && !showOnlyCubic;
 
   const clearAllFilters = () => {
     setShowOnlyCopy(false);
     setShowOnlyUSPS(false);
     setShowOnlyUPS(false);
     setShowOnlySlip(false);
+    setShowOnlyScanForm(false);
+    setShowOnlyCubic(false);
   };
 
   // Filter based on search term AND chosen chips
@@ -83,7 +87,17 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Choose an
       opt.label.toLowerCase().includes("slip") ||
       opt.value.toLowerCase().includes("slip");
 
-    return matchesSearch && matchesCopy && matchesUSPS && matchesUPS && matchesSlip;
+    const matchesScanForm =
+      !showOnlyScanForm ||
+      opt.label.toLowerCase().includes("scan") ||
+      opt.value.toLowerCase().includes("scan");
+
+    const matchesCubic =
+      !showOnlyCubic ||
+      opt.label.toLowerCase().includes("cubic") ||
+      opt.value.toLowerCase().includes("cubic");
+
+    return matchesSearch && matchesCopy && matchesUSPS && matchesUPS && matchesSlip && matchesScanForm && matchesCubic;
   });
 
   const handleSelect = (optionValue) => {
@@ -233,6 +247,38 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Choose an
                   className={`w-1.5 h-1.5 rounded-full transition-colors ${showOnlySlip ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-500"}`}
                 />
                 Slips
+              </button>
+
+              {/* SCAN Form Chip */}
+              <button
+                type="button"
+                onClick={() => setShowOnlyScanForm(!showOnlyScanForm)}
+                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all border flex items-center gap-1.5 ${
+                  showOnlyScanForm
+                    ? "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-300"
+                    : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${showOnlyScanForm ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-500"}`}
+                />
+                SCAN Form
+              </button>
+
+              {/* Cubic Chip */}
+              <button
+                type="button"
+                onClick={() => setShowOnlyCubic(!showOnlyCubic)}
+                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all border flex items-center gap-1.5 ${
+                  showOnlyCubic
+                    ? "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-300"
+                    : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${showOnlyCubic ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-500"}`}
+                />
+                Cubic
               </button>
 
               {/* USPS Chip */}

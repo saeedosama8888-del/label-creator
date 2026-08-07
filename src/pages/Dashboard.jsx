@@ -35,8 +35,53 @@ const templateOptions = [
   { value: "UPS Ground 3", label: "UPS Ground 3" },
   { value: "USPS Ground Advantage", label: "USPS Ground Advantage + Slip" },
   { value: "USPS Ground Advantage Copy", label: "USPS Ground Advantage Copy" },
+  { value: "USPS Ground Advantage Cubic", label: "USPS Ground Advantage Cubic" },
   { value: "USPS SCAN Form 5630", label: "USPS SCAN Form 5630 (Acceptance Notice)" },
 ];
+
+const processCsvData = (rawData) => {
+  if (!rawData || rawData.length === 0) return [];
+
+  let headers = [];
+  let dataRows = rawData;
+
+  if (Array.isArray(rawData[0])) {
+    const firstRowStr = rawData[0].map((cell) => String(cell || "").trim());
+    const isHeaderRow = firstRowStr.some(
+      (h) => h && isNaN(h) && !/^\d{16,34}$/.test(h)
+    );
+
+    if (isHeaderRow) {
+      headers = firstRowStr;
+      dataRows = rawData.slice(1);
+    }
+  }
+
+  return dataRows
+    .filter((row) => row && (Array.isArray(row) ? row.some((c) => String(c).trim() !== "") : true))
+    .map((row) => {
+      if (Array.isArray(row)) {
+        const rowObj = {};
+        // Keep numeric index lookups for backwards compatibility
+        row.forEach((val, idx) => {
+          let strVal = String(val ?? "").trim();
+          rowObj[idx] = strVal;
+        });
+        // Map header column names
+        headers.forEach((header, idx) => {
+          if (header) {
+            let strVal = row[idx] !== undefined ? String(row[idx] ?? "").trim() : "";
+            rowObj[header] = strVal;
+            const trimmed = header.trim();
+            rowObj[trimmed] = strVal;
+            rowObj[trimmed.toLowerCase()] = strVal;
+          }
+        });
+        return rowObj;
+      }
+      return row;
+    });
+};
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -75,9 +120,13 @@ function Dashboard() {
         >
           <CSVReader
             cssclassName="mx-auto m-0 p-0"
+            parserOptions={{
+              dynamicTyping: false,
+              skipEmptyLines: true,
+            }}
             onFileLoaded={(data, fileInfo) => {
-              data.shift();
-              setCsvData(data);
+              const processed = processCsvData(data);
+              setCsvData(processed);
               let name = fileInfo.name?.replace(".csv", "");
               setCvsFileName(name);
               setSelectedOption("");

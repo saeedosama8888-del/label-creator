@@ -27,6 +27,7 @@ import Wallmart_USPS_Priority_Mail_Copy from "./Wallmart_USPS_Priority_Mail_Copy
 import Wallmart_USPS_Ground_Advantage_Copy from "./Wallmart_USPS_Ground_Advantage_Copy";
 import USPS_Ground_Advantage_3_Copy from "./USPS_GROUND_ADVANTAGE_3_Copy";
 import USPS_Ground_Advantage_Copy from "./USPS_GROUND_ADVANTAGE_Copy";
+import USPS_Ground_Advantage_Cubic from "./USPS_Ground_Advantage_Cubic";
 import USPS_SCAN_Form_5630 from "./USPS_SCAN_Form_5630";
 
 
@@ -52,6 +53,9 @@ const getSelectedDocument = (selectedOption, csvData) => {
       return <USPS_Ground_Advantage csvData={csvData} />;
     case "USPS Ground Advantage Copy":
       return <USPS_Ground_Advantage_Copy csvData={csvData} />;
+    case "USPS Ground Advantage Cubic":
+    case "Cubic":
+      return <USPS_Ground_Advantage_Cubic csvData={csvData} />;
     case "USPS Ground Advantage 2":
       return <USPS_Ground_Advantage_2 csvData={csvData} />;
     case "USPS Ground Advantage 2 Copy":

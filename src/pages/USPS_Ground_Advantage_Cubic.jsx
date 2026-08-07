@@ -58,13 +58,12 @@ const styles = StyleSheet.create({
   },
   logo: {
     textAlign: "center",
-
     fontSize: 74,
     textTransform: "uppercase",
   },
 });
 
-const USPS_Ground_Advantage_Copy = ({ csvData }) => {
+const USPS_Ground_Advantage_Cubic = ({ csvData }) => {
   const getCurrentMonthYearFormatted = (dataRow) => {
     if (Array.isArray(dataRow)) {
       const dateRegex = /^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/;
@@ -176,7 +175,6 @@ const USPS_Ground_Advantage_Copy = ({ csvData }) => {
                           borderWidth: 1.2,
                           borderColor: "black",
                           borderBottomWidth: 0,
-                          // borderLeftWidth: 0,
                           display: "flex",
                           flexDirection: "row",
                           alignItems: "center",
@@ -184,16 +182,31 @@ const USPS_Ground_Advantage_Copy = ({ csvData }) => {
                           width: "26%",
                           height: "95%",
                           textAlign: "center",
-                          //   height: "50%",
                         }}
                       >
                         <Text style={styles.logo}>G</Text>
                       </View>
                       <View
                         style={{
+                          flex: 1,
+                          display: "flex",
+                          alignItems: "flex-end",
+                          justifyContent: "center",
+                          paddingRight: 12,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 12,
+                          }}
+                        >
+                          Cubic
+                        </Text>
+                      </View>
+                      <View
+                        style={{
                           borderWidth: 1.2,
                           borderColor: "black",
-                          // borderRightWidth: 0,
                           padding: 1,
                           display: "flex",
                           flexDirection: "column",
@@ -204,7 +217,6 @@ const USPS_Ground_Advantage_Copy = ({ csvData }) => {
                           paddingBottom: 6,
                           paddingTop: 2,
                           marginRight: 16,
-                          //   height: "20%",
                         }}
                       >
                         <Text style={{ fontSize: 8.3 }}>USPS GROUND</Text>
@@ -270,7 +282,6 @@ const USPS_Ground_Advantage_Copy = ({ csvData }) => {
                         style={{
                           fontSize: "7px",
                           textTransform: "uppercase",
-                          //   width: "50%",
                         }}
                       >
                         <Text>{data[0]}</Text>
@@ -313,14 +324,11 @@ const USPS_Ground_Advantage_Copy = ({ csvData }) => {
                       <View style={{ fontSize: "8.5px", color: "black" }}>
                         <Text>{data[8]}</Text>
                         <Text>{data[9]}</Text>
-                        {/* <Text>{data[15]}</Text> */}
                         <Text>{data[10]}</Text>
                         {data[11] && <Text>{data[11]}</Text>}
                         <Text
                           style={styles.hager}
                         >{`${data[12]} ${data[13]} ${zipArea}`}</Text>
-
-                        {/* {data[11] && <Text>{data[11]}</Text>} */}
                       </View>
                     </View>
 
@@ -399,4 +407,4 @@ const USPS_Ground_Advantage_Copy = ({ csvData }) => {
   );
 };
 
-export default USPS_Ground_Advantage_Copy;
+export default USPS_Ground_Advantage_Cubic;

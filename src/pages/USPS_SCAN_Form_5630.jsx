@@ -78,11 +78,21 @@ const styles = StyleSheet.create({
   },
 });
 
+const sanitizeCode = (code) => {
+  if (!code) return "";
+  let str = String(code).replace(/\s+/g, "").trim();
+  if (/[eE]\+/.test(str)) {
+    try {
+      str = BigInt(Math.round(Number(code))).toString();
+    } catch (e) {}
+  }
+  return str;
+};
+
 const generateScanBarcode = (trackingNum) => {
   const canvas = document.createElement("canvas");
   try {
-    const rawDigits = trackingNum ? trackingNum.replace(/\s+/g, "") : "";
-    let scanCode = rawDigits;
+    let scanCode = sanitizeCode(trackingNum);
 
     // Use tracking ID directly from CSV without modifying any digits
     if (!scanCode) {
@@ -108,7 +118,7 @@ const generateScanBarcode = (trackingNum) => {
 };
 
 const formatScanCode = (code) => {
-  const clean = code.replace(/\s+/g, "");
+  const clean = sanitizeCode(code);
   return (
     clean.match(/.{1,4}/g)?.join(" ") || "9201 9903 9605 5708 3812 1835 26"
   );
@@ -152,96 +162,88 @@ const extractShipmentDate = (firstRow) => {
   return formatDateFormatted();
 };
 
+const getColValue = (row, colNames, fallbackIdx = -1) => {
+  if (!row) return "";
+
+  const normalizedTargets = colNames.map((name) => name.trim().toLowerCase());
+
+  let val = "";
+  if (typeof row === "object" && !Array.isArray(row)) {
+    // 1. Match by column header name
+    for (const key of Object.keys(row)) {
+      const normKey = String(key).trim().toLowerCase();
+      if (normalizedTargets.includes(normKey)) {
+        val = String(row[key] ?? "").trim();
+        if (val !== "") break;
+      }
+    }
+    // 2. Match by numeric index key in object if present
+    if (val === "" && fallbackIdx >= 0 && row[fallbackIdx] !== undefined) {
+      val = String(row[fallbackIdx] ?? "").trim();
+    }
+  } else if (Array.isArray(row) && fallbackIdx >= 0 && fallbackIdx < row.length) {
+    val = String(row[fallbackIdx] ?? "").trim();
+  }
+
+  return sanitizeCode(val) || val;
+};
+
 const USPS_SCAN_Form_5630 = ({ csvData }) => {
   if (!csvData || csvData.length === 0) return null;
 
-  const firstRow = csvData[0] || [];
+  const firstRow = csvData[0] || {};
 
-  // Smart dynamic parser to handle shifted columns (e.g., when "615 Helena Ave" gets split across 3 cells)
-  let nameVal = String(firstRow[0] || "").trim() || "1";
-  let addressVal = "3400 DOVER DR";
-  let cityVal = "McKinney";
-  let stateVal = "TX";
-  let zipVal = "75069-7715";
-  let priorityCount = 0;
-  let groundAdvantageCount = 0;
-  let dateVal = extractShipmentDate(firstRow);
-  let firstTrackingNumber = "";
+  // Extract fields primarily by CSV Column Header Names
+  const nameVal =
+    getColValue(firstRow, ["NAME", "NAME ", "FromName", "From Name", "Sender Name", "Name"], 0) || "1";
 
-  const stateRegex = /^[A-Z]{2}$/i;
-  const zipRegex = /^\d{5}(-\d{4})?$/;
-  const dateRegex = /^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/;
+  const addressVal =
+    getColValue(firstRow, ["FromStreet", "From Street", "Address", "FromAddress", "Shipped From Address"], 2) || "3400 DOVER DR";
+
+  const cityVal =
+    getColValue(firstRow, ["FromCity", "From City", "City"], 4) || "McKinney";
+
+  const stateVal =
+    getColValue(firstRow, ["FromState", "From State", "State"], 5) || "TX";
+
+  const zipVal =
+    getColValue(firstRow, ["FromZip", "FromZip ", "From Zip", "From ZIP", "Zip", "ZIP"], 6) || "75069-7715";
+
+  // Shipment date comes from ToStreet2, defaulting to today's date if empty
+  let dateVal = getColValue(firstRow, ["ToStreet2", "ShipmentDate", "Shipment Date", "Date", "Ship Date"], 11);
+  if (!dateVal || !dateVal.trim()) {
+    dateVal = formatDateFormatted();
+  }
+
+  // Priority Mail volume comes from ToStreet
+  const priorityVal = getColValue(firstRow, ["ToStreet", "PriorityCount", "Priority Mail", "Priority", "Priority Volume"], 10);
+  const groundVal = getColValue(firstRow, ["ToCompany", "GroundAdvantageCount", "USPS Ground Advantage", "Ground Advantage", "Ground Volume", "ToName"], 9);
+
+  let priorityCount = parseInt(priorityVal, 10) || 0;
+  let groundAdvantageCount = parseInt(groundVal, 10) || 0;
+
+  // Tracking number from Tracking column
+  let firstTrackingNumber = getColValue(firstRow, ["Tracking", "Tracking Number", "TrackingNumber", "Tracking #", "Barcode"], 23);
+
+  // Fallback search across csvData rows if tracking not in first row
   const trackingRegex = /^\d{16,34}$/;
-
-  let zipIndex = -1;
-  let stateIndex = -1;
-  let dateIndex = -1;
-
-  if (Array.isArray(firstRow)) {
-    // 1. Scan for distinct formats: zip, state, date, tracking
-    for (let i = 1; i < firstRow.length; i++) {
-      const cell = String(firstRow[i] || "").trim();
-      if (!cell) continue;
-
-      if (trackingRegex.test(cell) && !firstTrackingNumber) {
-        firstTrackingNumber = cell;
-      } else if (dateRegex.test(cell) && dateIndex === -1) {
-        dateVal = cell;
-        dateIndex = i;
-      } else if (zipRegex.test(cell) && zipIndex === -1) {
-        zipVal = cell;
-        zipIndex = i;
-      } else if (stateRegex.test(cell) && stateIndex === -1 && i < 15) {
-        stateVal = cell.toUpperCase();
-        stateIndex = i;
+  if (!firstTrackingNumber && Array.isArray(csvData)) {
+    for (const row of csvData) {
+      const track = getColValue(row, ["Tracking", "Tracking Number", "TrackingNumber", "Tracking #", "Barcode"], 23);
+      if (track && trackingRegex.test(track)) {
+        firstTrackingNumber = track;
+        break;
       }
-    }
-
-    // 2. City is usually right before state or zip
-    let cityIndex = -1;
-    const endAddressIndex = Math.min(
-      stateIndex !== -1 ? stateIndex : 999,
-      zipIndex !== -1 ? zipIndex : 999
-    );
-
-    if (endAddressIndex !== 999 && endAddressIndex > 1) {
-      for (let i = endAddressIndex - 1; i >= 1; i--) {
-        const cell = String(firstRow[i] || "").trim();
-        if (cell) {
-          cityVal = cell;
-          cityIndex = i;
-          break;
+      if (Array.isArray(row)) {
+        for (let i = row.length - 1; i >= 0; i--) {
+          const val = String(row[i] || "").trim();
+          if (trackingRegex.test(val)) {
+            firstTrackingNumber = val;
+            break;
+          }
         }
       }
-    }
-
-    // 3. Address is all cells between name (0) and city
-    const maxAddressIdx = cityIndex !== -1 ? cityIndex : endAddressIndex;
-    const addressParts = [];
-    if (maxAddressIdx !== 999) {
-      for (let i = 1; i < maxAddressIdx; i++) {
-        const cell = String(firstRow[i] || "").trim();
-        if (cell && !stateRegex.test(cell) && !zipRegex.test(cell) && !dateRegex.test(cell)) {
-          addressParts.push(cell);
-        }
-      }
-      if (addressParts.length > 0) {
-        addressVal = addressParts.join(" ");
-      }
-    }
-
-    // 4. Volumes: 
-    // In a normal CSV, ToName (Priority) is col 8, ToCompany (Ground) is col 9
-    // If the CSV is shifted (e.g. ZIP code is at col 8), then we read cols 9 and 10 instead.
-    const strictP = String(firstRow[8] || "").trim();
-    const strictG = String(firstRow[9] || "").trim();
-
-    if (!zipRegex.test(strictP)) {
-      priorityCount = parseInt(strictP, 10) || 0;
-      groundAdvantageCount = parseInt(strictG, 10) || 0;
-    } else {
-      priorityCount = parseInt(String(firstRow[9] || "").trim(), 10) || 0;
-      groundAdvantageCount = parseInt(String(firstRow[10] || "").trim(), 10) || 0;
+      if (firstTrackingNumber) break;
     }
   }
 
@@ -296,9 +298,9 @@ const USPS_SCAN_Form_5630 = ({ csvData }) => {
         <Text style={[styles.fieldValue, { top: 153.6, left: 407.24 }]}>{stateVal}</Text>
         <Text style={[styles.fieldValue, { top: 153.6, left: 475.75 }]}>{zipVal}</Text>
 
-        <Text style={[styles.tableCellText, { top: 241.9, left: 380 }]}>{priorityCount}</Text>
-        <Text style={[styles.tableCellText, { top: 264.7, left: 380 }]}>{groundAdvantageCount}</Text>
-        <Text style={[styles.tableTotalText, { top: 424.6, left: 380 }]}>{totalVolume}</Text>
+        <Text style={[styles.tableCellText, { top: 241.9, left: 378.5 }]}>{priorityCount}</Text>
+        <Text style={[styles.tableCellText, { top: 264.7, left: 378.5 }]}>{groundAdvantageCount}</Text>
+        <Text style={[styles.tableTotalText, { top: 424.6, left: 378.5 }]}>{totalVolume}</Text>
 
         {scanBarcodeUrl ? (
           <Image src={scanBarcodeUrl} style={styles.scanBarcode} />
