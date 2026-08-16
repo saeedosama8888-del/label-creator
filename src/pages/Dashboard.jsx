@@ -62,6 +62,10 @@ const processCsvData = (rawData) => {
     .map((row) => {
       if (Array.isArray(row)) {
         const rowObj = {};
+        // Initialize numeric index properties as empty strings
+        for (let i = 0; i < 35; i++) {
+          rowObj[i] = "";
+        }
         // Keep numeric index lookups for backwards compatibility
         row.forEach((val, idx) => {
           let strVal = String(val ?? "").trim();

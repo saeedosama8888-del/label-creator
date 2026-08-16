@@ -305,33 +305,34 @@ export const generateBarcodeImage = (barcodeValue) => {
 };
 
 export const PackingSlipPage = ({ data, index }) => {
-  // Normalize empty values
-  const normalizedData = [...data];
-  for (let i = 0; i < normalizedData.length; i++) {
-    if (!normalizedData[i]) {
-      normalizedData[i] = "";
+  if (!data) return null;
+
+  const getVal = (key, fallback = "") => {
+    if (data[key] !== undefined && data[key] !== null) {
+      return String(data[key]).trim();
     }
-  }
+    return fallback;
+  };
 
-  const fromCompany = normalizedData[0] || normalizedData[1] || "Pk 99";
-  const fromStreet = normalizedData[2] || "";
-  const fromStreet2 = normalizedData[3] || "";
-  const fromCity = normalizedData[4] || "";
-  const fromState = normalizedData[5] || "";
-  const fromZip = normalizedData[6] || "";
+  const fromCompany = getVal(0) || getVal(1) || "Pk 99";
+  const fromStreet = getVal(2);
+  const fromStreet2 = getVal(3);
+  const fromCity = getVal(4);
+  const fromState = getVal(5);
+  const fromZip = getVal(6);
 
-  const toName = normalizedData[8] || "";
-  const toStreet = normalizedData[10] || "";
-  const toStreet2 = normalizedData[11] || "";
-  const toCity = normalizedData[12] || "";
-  const toState = normalizedData[13] || "";
-  const toZip = normalizedData[14] || "";
-  const ToPhone = normalizedData[15] || "";
+  const toName = getVal(8);
+  const toStreet = getVal(10);
+  const toStreet2 = getVal(11);
+  const toCity = getVal(12);
+  const toState = getVal(13);
+  const toZip = getVal(14);
+  const ToPhone = getVal(15);
 
-  const description = normalizedData[20] || "";
-  const reference1 = normalizedData[21] || "";
-  const reference2 = normalizedData[22] || "";
-  const trackingId = normalizedData[23] || "";
+  const description = getVal(20);
+  const reference1 = getVal(21);
+  const reference2 = getVal(22);
+  const trackingId = getVal(23);
 
   // Format tracking number text: groups of 4 digits
   let formattedTracking = [
@@ -345,13 +346,13 @@ export const PackingSlipPage = ({ data, index }) => {
     .filter(Boolean)
     .join(" ");
 
-  const data14Parts = normalizedData[14]?.split("-");
-  const firstPart = data14Parts ? data14Parts[0] : "";
-  const data23 = normalizedData[23];
-  const outputString = `^FNC1420${firstPart
-    .toString()
-    .padStart(5, "0")}^FNC1${data23}`;
-  const barcodeUrl = generateBarcodeImage(outputString);
+  const zipVal = String(toZip || "");
+  const data14Parts = zipVal ? zipVal.split("-") : [];
+  const firstPart = data14Parts[0] || "";
+  const outputString = trackingId
+    ? `^FNC1420${firstPart.toString().padStart(5, "0")}^FNC1${trackingId}`
+    : "";
+  const barcodeUrl = outputString ? generateBarcodeImage(outputString) : null;
 
   return (
     <Page size="A6" key={index} style={styles.page}>
@@ -444,7 +445,7 @@ const PackingSlip = ({ csvData }) => {
   return (
     <Document>
       {csvData &&
-        csvData?.length >= 0 &&
+        csvData?.length > 0 &&
         csvData?.map((data, index) => (
           <PackingSlipPage key={index} data={data} index={index} />
         ))}
@@ -454,10 +455,12 @@ const PackingSlip = ({ csvData }) => {
         const barcodesData = csvData
           ? csvData
               .map((d, idx) => {
-                const tracking = d[23];
+                if (!d) return null;
+                const tracking = d[23] !== undefined && d[23] !== null ? String(d[23]).trim() : "";
                 if (!tracking) return null;
-                const data14Parts = d[14]?.split("-");
-                const firstPart = data14Parts ? data14Parts[0] : "";
+                const zipVal = String(d[14] || "").trim();
+                const data14Parts = zipVal ? zipVal.split("-") : [];
+                const firstPart = data14Parts[0] || "";
                 const zip = firstPart.toString().padStart(5, "0");
                 const outputString = `^FNC1420${zip}^FNC1${tracking}`;
                 const barcodeUrl = generateBarcodeImage(outputString);

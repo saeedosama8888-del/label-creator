@@ -66,10 +66,11 @@ const styles = StyleSheet.create({
 
 const USPS_Ground_Advantage_Copy = ({ csvData }) => {
   const getCurrentMonthYearFormatted = (dataRow) => {
-    if (Array.isArray(dataRow)) {
+    if (dataRow) {
       const dateRegex = /^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/;
-      for (let i = 0; i < dataRow.length; i++) {
-        const val = String(dataRow[i] || "").trim();
+      const values = Array.isArray(dataRow) ? dataRow : Object.values(dataRow);
+      for (let i = 0; i < values.length; i++) {
+        const val = String(values[i] || "").trim();
         if (val && dateRegex.test(val)) {
           return val;
         }
@@ -122,9 +123,9 @@ const USPS_Ground_Advantage_Copy = ({ csvData }) => {
       {csvData &&
         csvData?.length >= 0 &&
         csvData?.map((data, index) => {
-          if (!data || !Array.isArray(data)) return null;
+          if (!data) return null;
 
-          for (let i = 0; i < Math.max(data.length, 25); i++) {
+          for (let i = 0; i < 25; i++) {
             if (!data[i]) {
               data[i] = "";
             }
