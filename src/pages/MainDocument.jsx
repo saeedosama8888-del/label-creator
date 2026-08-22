@@ -23,9 +23,12 @@ import USPS_Priority_Mail_2_Copy from "./USPS_Priority_Mail_2_Copy";
 import USPS_Ground_Advantage_2_Copy from "./USPS_Ground_Advantage_2_Copy";
 import PackingSlip from "./PackingSlip";
 import USPS_Priority_Mail_3_Copy from "./USPS_Priority_Mail_3_Copy";
+import USPS_Priority_E_Postage_C1 from "./USPS_Priority_E_Postage_C1";
 import Wallmart_USPS_Priority_Mail_Copy from "./Wallmart_USPS_Priority_Mail_Copy";
 import Wallmart_USPS_Ground_Advantage_Copy from "./Wallmart_USPS_Ground_Advantage_Copy";
 import USPS_Ground_Advantage_3_Copy from "./USPS_GROUND_ADVANTAGE_3_Copy";
+import USPS_Api_Priority_Mail from "./USPS_Api_Priority_Mail";
+import USPS_Api_Priority_Mail_C1 from "./USPS_Api_Priority_Mail_C1";
 import USPS_Ground_Advantage_Copy from "./USPS_GROUND_ADVANTAGE_Copy";
 import USPS_Ground_Advantage_Cubic from "./USPS_Ground_Advantage_Cubic";
 import USPS_SCAN_Form_5630 from "./USPS_SCAN_Form_5630";
@@ -64,6 +67,10 @@ const getSelectedDocument = (selectedOption, csvData) => {
       return <USPS_Ground_Advantage_3 csvData={csvData} />;
     case "USPS Ground Advantage 3 Copy":
       return <USPS_Ground_Advantage_3_Copy csvData={csvData} />;
+    case "USPS api priority mail":
+      return <USPS_Api_Priority_Mail csvData={csvData} />;
+    case "USPS api priority mail C1":
+      return <USPS_Api_Priority_Mail_C1 csvData={csvData} />;
     case "Click n ship ground":
       return <USPS_Ground_Advantage_ClickNShip csvData={csvData} />;
     case "Wallmart USPS Ground Advantage":
@@ -84,6 +91,8 @@ const getSelectedDocument = (selectedOption, csvData) => {
       return <USPS_Priority_Mail_3 csvData={csvData} />;
     case "USPS Priority Mail 3 e Postage Copy":
       return <USPS_Priority_Mail_3_Copy csvData={csvData} />;
+    case "USPS Priority e postage C1":
+      return <USPS_Priority_E_Postage_C1 csvData={csvData} />;
     case "USPS Ground Pitney Bowes":
       return <USPS_Ground_Pitney_Bowes csvData={csvData} />;
     case "USPS Priority Pitney Bowes":
