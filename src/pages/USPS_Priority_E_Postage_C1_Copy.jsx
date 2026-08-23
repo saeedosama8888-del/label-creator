@@ -94,8 +94,7 @@ const USPS_Priority_E_Postage_C1_Copy = ({ csvData }) => {
 
           let zipArea = data[14].toString().padStart(5, "0");
 
-          const GS = String.fromCharCode(29);
-          const qrcodeData = `]C1420${firstPart.toString().padStart(5, "0")}${GS}${data?.[23]}`;
+          const qrcodeData = data?.[23];
           const qrcode = generateQrCode(qrcodeData);
           const randomNumber = Math.floor(Math.random() * 99);
           const randomNo = `C0${
