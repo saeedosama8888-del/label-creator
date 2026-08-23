@@ -116,6 +116,24 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Choose an
         </>
       );
     }
+    if (typeof label === "string" && label.includes("One GS")) {
+      const baseLabel = label.replace("One GS", "");
+      return (
+        <>
+          {baseLabel}
+          <span className="font-bold text-gray-900 dark:text-gray-100">One GS</span>
+        </>
+      );
+    }
+    if (typeof label === "string" && label.includes("No GS")) {
+      const baseLabel = label.replace("No GS", "");
+      return (
+        <>
+          {baseLabel}
+          <span className="font-bold text-gray-900 dark:text-gray-100">No GS</span>
+        </>
+      );
+    }
     return label;
   };
 
