@@ -33,6 +33,7 @@ import USPS_Api_Priority_Mail_C1 from "./USPS_Api_Priority_Mail_C1";
 import USPS_Api_Priority_Mail_C1_One_GS from "./USPS_Api_Priority_Mail_C1_One_GS";
 import USPS_Ground_Advantage_Copy from "./USPS_GROUND_ADVANTAGE_Copy";
 import USPS_Ground_Advantage_Cubic from "./USPS_Ground_Advantage_Cubic";
+import USPS_Ground_Advantage_Cubic_Copy from "./USPS_Ground_Advantage_Cubic_Copy";
 import USPS_SCAN_Form_5630 from "./USPS_SCAN_Form_5630";
 
 
@@ -61,6 +62,9 @@ const getSelectedDocument = (selectedOption, csvData) => {
     case "USPS Ground Advantage Cubic":
     case "Cubic":
       return <USPS_Ground_Advantage_Cubic csvData={csvData} />;
+    case "USPS Ground Advantage Cubic Copy":
+    case "Cubic Copy":
+      return <USPS_Ground_Advantage_Cubic_Copy csvData={csvData} />;
     case "USPS Ground Advantage 2":
       return <USPS_Ground_Advantage_2 csvData={csvData} />;
     case "USPS Ground Advantage 2 Copy":

@@ -41,6 +41,7 @@ const templateOptions = [
   { value: "USPS Ground Advantage", label: "USPS Ground Advantage + Slip" },
   { value: "USPS Ground Advantage Copy", label: "USPS Ground Advantage Copy" },
   { value: "USPS Ground Advantage Cubic", label: "USPS Ground Advantage Cubic" },
+  { value: "USPS Ground Advantage Cubic Copy", label: "USPS Ground Advantage Cubic Copy" },
   { value: "USPS SCAN Form 5630", label: "USPS SCAN Form 5630 (Acceptance Notice)" },
 ];
 

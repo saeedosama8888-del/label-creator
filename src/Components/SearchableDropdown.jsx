@@ -116,6 +116,15 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Choose an
         </>
       );
     }
+    if (typeof label === "string" && label.includes(" Copy")) {
+      const baseLabel = label.replace(" Copy", "");
+      return (
+        <>
+          {baseLabel}
+          <span className="font-bold text-gray-900 dark:text-gray-100"> Copy</span>
+        </>
+      );
+    }
     if (typeof label === "string" && label.includes("One GS")) {
       const baseLabel = label.replace("One GS", "");
       return (
