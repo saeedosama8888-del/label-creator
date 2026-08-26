@@ -138,7 +138,7 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                 style={{
                   backgroundColor: "#fff",
                   borderColor: "#000",
-                  borderWidth: 3,
+                  borderWidth: 2,
                   height: "100%",
                   position: "relative",
                 }}
@@ -148,25 +148,20 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                   style={{
                     display: "flex",
                     flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginTop: -1.3,
+                    alignItems: "stretch",
                   }}
                 >
                   <View
                     style={{
-                      borderWidth: 1.2,
-                      borderColor: "black",
-                      borderBottomWidth: 0,
-                      borderTopWidth: 0,
-                      borderLeftWidth: 0,
+                      borderRightWidth: 1.2,
+                      borderRightColor: "black",
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: "26%",
-                      height: "95%",
+                      width: "28%",
                       textAlign: "center",
+                      paddingVertical: 2,
                     }}
                   >
                     <Text style={styles.logo}>G</Text>
@@ -191,26 +186,35 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                   </View>
                   <View
                     style={{
-                      borderWidth: 1.5,
-                      borderColor: "black",
-                      padding: 2,
-                      paddingHorizontal: 3,
                       display: "flex",
-                      flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: "36%",
-                      textAlign: "center",
-                      paddingTop: 6,
-                      paddingBottom: 8,
-                      marginRight: 8,
+                      paddingRight: 8,
+                      paddingVertical: 6,
                     }}
                   >
-                    <Text style={{ fontSize: 8.5 }}>USPS GROUND</Text>
-                    <Text style={{ fontSize: 8.5 }}>ADVANTAGE</Text>
-                    <Text style={{ fontSize: 8.5 }}>U.S. POSTAGE PAID</Text>
-                    <Text style={{ fontSize: 8.5 }}>ATFM</Text>
-                    <Text style={{ fontSize: 8.5 }}>e-Postage</Text>
+                    <View
+                      style={{
+                        borderWidth: 1.5,
+                        borderColor: "black",
+                        padding: 2,
+                        paddingHorizontal: 4,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 96,
+                        textAlign: "center",
+                        paddingTop: 6,
+                        paddingBottom: 8,
+                      }}
+                    >
+                      <Text style={{ fontSize: 8.5 }}>USPS GROUND</Text>
+                      <Text style={{ fontSize: 8.5 }}>ADVANTAGE</Text>
+                      <Text style={{ fontSize: 8.5 }}>U.S. POSTAGE PAID</Text>
+                      <Text style={{ fontSize: 8.5 }}>ATFM</Text>
+                      <Text style={{ fontSize: 8.5 }}>e-Postage</Text>
+                    </View>
                   </View>
                 </View>
 
@@ -326,7 +330,7 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                   <View
                     style={{
                       width: "100%",
-                      height: 4,
+                      height: 3,
                       backgroundColor: "#000",
                     }}
                   ></View>
@@ -359,7 +363,7 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                   <View
                     style={{
                       width: "100%",
-                      height: 4,
+                      height: 3,
                       backgroundColor: "#000",
                     }}
                   ></View>
