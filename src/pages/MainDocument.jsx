@@ -36,8 +36,7 @@ import USPS_Ground_Advantage_Cubic from "./USPS_Ground_Advantage_Cubic";
 import USPS_Ground_Advantage_Cubic_Copy from "./USPS_Ground_Advantage_Cubic_Copy";
 import USPS_SCAN_Form_5630 from "./USPS_SCAN_Form_5630";
 
-
-const getSelectedDocument = (selectedOption, csvData) => {
+const getSelectedDocument = (selectedOption, csvData, templateConfig) => {
   switch (selectedOption) {
     case "USPS SCAN Form 5630":
       return <USPS_SCAN_Form_5630 csvData={csvData} />;
@@ -64,7 +63,7 @@ const getSelectedDocument = (selectedOption, csvData) => {
       return <USPS_Ground_Advantage_Cubic csvData={csvData} />;
     case "USPS Ground Advantage Cubic Copy":
     case "Cubic Copy":
-      return <USPS_Ground_Advantage_Cubic_Copy csvData={csvData} />;
+      return <USPS_Ground_Advantage_Cubic_Copy csvData={csvData} config={templateConfig} />;
     case "USPS Ground Advantage 2":
       return <USPS_Ground_Advantage_2 csvData={csvData} />;
     case "USPS Ground Advantage 2 Copy":
@@ -117,7 +116,7 @@ const getSelectedDocument = (selectedOption, csvData) => {
   }
 };
 
-const MainDocument = ({ csvData, cvsFileName, selectedOption }) => {
+const MainDocument = ({ csvData, cvsFileName, selectedOption, templateConfig }) => {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -135,8 +134,8 @@ const MainDocument = ({ csvData, cvsFileName, selectedOption }) => {
       <div className="w-full sm:w-[16%] lg:ml-[10.8%] md:ml-[7%] sm:ml-0 ml-0 px-4 sm:px-0 mb-4">
         {ready && (
           <PDFDownloadLink
-            className="bg-blue-600 hover:bg-blue-700 mx-auto text-white transition-all rounded-lg sm:w-[100%] w-full flex  justify-center py-2 mb-4 "
-            document={getSelectedDocument(selectedOption, csvData)}
+            className="bg-blue-600 hover:bg-blue-700 mx-auto text-white transition-all rounded-lg sm:w-[100%] w-full flex justify-center py-2 mb-4"
+            document={getSelectedDocument(selectedOption, csvData, templateConfig)}
             fileName={`${cvsFileName}.pdf`}
           >
             {({ loading }) => (loading ? "Loading document..." : "Download PDF")}
@@ -144,7 +143,7 @@ const MainDocument = ({ csvData, cvsFileName, selectedOption }) => {
         )}
       </div>
       <PDFViewer style={{ width: "100%", height: 1200, margin: "auto" }}>
-        {getSelectedDocument(selectedOption, csvData)}
+        {getSelectedDocument(selectedOption, csvData, templateConfig)}
       </PDFViewer>
     </div>
   );

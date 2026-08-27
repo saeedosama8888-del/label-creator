@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import 'flowbite';
@@ -7,6 +7,11 @@ import MainDocument from './MainDocument';
 import CheckAuth from '../Components/AuthCheck';
 import { auth } from '../config/firebase';
 import SearchableDropdown from '../Components/SearchableDropdown';
+import TemplateConfigPanel from '../Components/TemplateConfigPanel';
+import {
+  loadTemplateConfig,
+  DEFAULT_CUBIC_COPY_CONFIG,
+} from '../config/templateConfigService';
 
 const templateOptions = [
   { value: "UPS Ground 2", label: "UPS Ground 2" },
@@ -98,6 +103,39 @@ function Dashboard() {
   const [csvData, setCsvData] = useState(null);
   const [selectedOption, setSelectedOption] = useState('');
   const [cvsFileName, setCvsFileName] = useState('');
+  const [templateConfig, setTemplateConfig] = useState(null);
+  const [showConfigPanel, setShowConfigPanel] = useState(false);
+  const [configUnlocked, setConfigUnlocked] = useState(false);
+
+  const tapCountRef = useRef(0);
+  const tapTimeoutRef = useRef(null);
+
+  const handleTitleClick = (e) => {
+    e.preventDefault();
+    if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
+
+    tapCountRef.current += 1;
+    if (tapCountRef.current >= 5) {
+      setConfigUnlocked((prev) => !prev);
+      tapCountRef.current = 0;
+    } else {
+      tapTimeoutRef.current = setTimeout(() => {
+        tapCountRef.current = 0;
+      }, 2500);
+    }
+  };
+
+  const isCubicCopy = selectedOption === 'USPS Ground Advantage Cubic Copy';
+
+  // Load config from Firestore when Cubic Copy is selected
+  useEffect(() => {
+    if (isCubicCopy) {
+      loadTemplateConfig().then((config) => setTemplateConfig(config));
+    } else {
+      setTemplateConfig(null);
+      setShowConfigPanel(false);
+    }
+  }, [isCubicCopy]);
 
   const handleLogout = async () => {
     try {
@@ -112,8 +150,12 @@ function Dashboard() {
         <div className="px-3 py-3 max-w-full lg:w-[80%] sm:w-[85%] w-full mx-auto">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center justify-start rtl:justify-end">
-              <a href="/" className="flex ms-2 md:me-24">
-                <p className="self-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 text-lg font-bold sm:text-2xl whitespace-nowrap">
+              <a
+                href="/"
+                onClick={handleTitleClick}
+                className="flex ms-2 md:me-24 select-none cursor-default"
+              >
+                <p className="self-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 text-lg font-bold sm:text-2xl whitespace-nowrap select-none">
                   Shipping Label Creation
                 </p>
               </a>
@@ -152,13 +194,32 @@ function Dashboard() {
         <div>
           {csvData?.length > 0 && csvData && (
             <>
-              <div className="my-4 w-full sm:w-[500px]">
-                <SearchableDropdown
-                  options={templateOptions}
-                  value={selectedOption}
-                  onChange={setSelectedOption}
-                  placeholder="Choose a template"
-                />
+              <div className="my-4 w-full sm:w-[500px] flex items-center gap-2">
+                <div className="flex-1">
+                  <SearchableDropdown
+                    options={templateOptions}
+                    value={selectedOption}
+                    onChange={setSelectedOption}
+                    placeholder="Choose a template"
+                  />
+                </div>
+                {isCubicCopy && configUnlocked && (
+                  <button
+                    type="button"
+                    onClick={() => setShowConfigPanel(!showConfigPanel)}
+                    className={`p-2.5 rounded-lg border transition-all ${
+                      showConfigPanel
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
+                    }`}
+                    title="Configure template"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </>
           )}
@@ -170,6 +231,14 @@ function Dashboard() {
           csvData={csvData}
           cvsFileName={cvsFileName}
           selectedOption={selectedOption}
+          templateConfig={templateConfig}
+        />
+      )}
+      {showConfigPanel && templateConfig && (
+        <TemplateConfigPanel
+          config={templateConfig}
+          onConfigChange={setTemplateConfig}
+          onClose={() => setShowConfigPanel(false)}
         />
       )}
     </CheckAuth>

@@ -8,39 +8,49 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import bwipjs from "bwip-js";
+import { DEFAULT_CUBIC_COPY_CONFIG } from "../config/templateConfigService";
 
-const styles = StyleSheet.create({
-  logo: {
-    textAlign: "center",
-    fontSize: 74,
-    textTransform: "uppercase",
-    fontFamily: "Helvetica-Bold",
-  },
-  boldBanner: {
-    fontSize: 16,
-    fontFamily: "Helvetica-Bold",
-  },
-  tmText: {
-    fontSize: 8,
-    fontFamily: "Helvetica-Bold",
-    marginLeft: 3,
-    marginTop: 2,
-    color: "black",
-  },
-  trackingHeader: {
-    fontSize: 10.5,
-    fontFamily: "Helvetica-Bold",
-    textAlign: "center",
-  },
-  trackingNumber: {
-    fontSize: 11,
-    fontFamily: "Helvetica-Bold",
-    paddingTop: 3,
-    textAlign: "center",
-  },
-});
+const USPS_Ground_Advantage_Cubic_Copy = ({ csvData, config: configProp }) => {
+  // Use provided config or fall back to defaults
+  const config = configProp || DEFAULT_CUBIC_COPY_CONFIG;
 
-const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
+  // Helper to get fontFamily based on bold toggle
+  const getFont = (bold) => (bold ? "Helvetica-Bold" : "Helvetica");
+
+  // Build dynamic styles from config
+  const styles = StyleSheet.create({
+    logo: {
+      textAlign: "center",
+      fontSize: config.gLogo.fontSize,
+      textTransform: "uppercase",
+      fontFamily: getFont(config.gLogo.bold),
+    },
+    boldBanner: {
+      fontSize: config.banner.fontSize,
+      fontFamily: getFont(config.banner.bold),
+      letterSpacing: 0.1,
+    },
+    tmText: {
+      fontSize: config.banner.tmFontSize,
+      fontFamily: getFont(config.banner.bold),
+      marginLeft: 1.5,
+      marginTop: 0.5,
+      color: "black",
+    },
+    trackingHeader: {
+      fontSize: config.trackingHeader.fontSize,
+      fontFamily: getFont(config.trackingHeader.bold),
+      textAlign: "center",
+    },
+    trackingNumber: {
+      fontSize: config.trackingNumber.fontSize,
+      fontFamily: getFont(config.trackingNumber.bold),
+      paddingTop: 1.5,
+      paddingBottom: 6,
+      textAlign: "center",
+    },
+  });
+
   const getCurrentMonthYearFormatted = (dataRow) => {
     if (dataRow) {
       const dateRegex = /^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/;
@@ -128,18 +138,16 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
           let zipArea = data[14] ? data[14].toString().padStart(5, "0") : "00000";
 
           return (
-            <Page
-              size="A6"
-              key={index}
-              id={`content-id-${index}`}
-              style={{ padding: 4, backgroundColor: "#fff" }}
-            >
+            <Page size="A6" key={index} id={`content-id-${index}`} style={{ margin: 0, padding: 0 }}>
               <View
                 style={{
                   backgroundColor: "#fff",
                   borderColor: "#000",
-                  borderWidth: 2,
+                  borderWidth: 2.5,
+                  width: "100%",
                   height: "100%",
+                  margin: 0,
+                  padding: 0,
                   position: "relative",
                 }}
               >
@@ -153,15 +161,17 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                 >
                   <View
                     style={{
-                      borderRightWidth: 1.2,
+                      borderRightWidth: 1.1,
                       borderRightColor: "black",
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: "28%",
+                      width: "27%",
                       textAlign: "center",
-                      paddingVertical: 2,
+                      paddingVertical: 5,
+                      marginLeft: config.gLogo.offsetX,
+                      marginTop: config.gLogo.offsetY,
                     }}
                   >
                     <Text style={styles.logo}>G</Text>
@@ -172,13 +182,17 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                       display: "flex",
                       alignItems: "flex-end",
                       justifyContent: "center",
-                      paddingRight: 6,
+                      paddingRight: config.cubicText?.marginRight !== undefined ? config.cubicText.marginRight : 10,
                     }}
                   >
                     <Text
                       style={{
-                        fontSize: 12,
+                        fontSize: config.cubicText?.fontSize || 9.5,
+                        fontFamily: getFont(config.cubicText?.bold),
                         textTransform: "uppercase",
+                        position: "relative",
+                        left: config.cubicText?.offsetX || 0,
+                        top: config.cubicText?.offsetY !== undefined ? config.cubicText.offsetY : -5,
                       }}
                     >
                       CUBIC
@@ -189,13 +203,15 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      paddingRight: 8,
-                      paddingVertical: 6,
+                      paddingRight: config.postageBox?.marginRight !== undefined ? config.postageBox.marginRight : 16,
+                      paddingVertical: 7,
+                      marginLeft: config.postageBox.offsetX,
+                      marginTop: config.postageBox.offsetY,
                     }}
                   >
                     <View
                       style={{
-                        borderWidth: 1.5,
+                        borderWidth: 1.1,
                         borderColor: "black",
                         padding: 2,
                         paddingHorizontal: 4,
@@ -203,17 +219,17 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: 96,
+                        width: config.postageBox.boxWidth,
                         textAlign: "center",
-                        paddingTop: 6,
-                        paddingBottom: 8,
+                        paddingTop: 5,
+                        paddingBottom: 7,
                       }}
                     >
-                      <Text style={{ fontSize: 8.5 }}>USPS GROUND</Text>
-                      <Text style={{ fontSize: 8.5 }}>ADVANTAGE</Text>
-                      <Text style={{ fontSize: 8.5 }}>U.S. POSTAGE PAID</Text>
-                      <Text style={{ fontSize: 8.5 }}>ATFM</Text>
-                      <Text style={{ fontSize: 8.5 }}>e-Postage</Text>
+                      <Text style={{ fontSize: config.postageBox.fontSize, fontFamily: getFont(config.postageBox.bold), lineHeight: 1.15 }}>USPS GROUND</Text>
+                      <Text style={{ fontSize: config.postageBox.fontSize, fontFamily: getFont(config.postageBox.bold), lineHeight: 1.15 }}>ADVANTAGE</Text>
+                      <Text style={{ fontSize: config.postageBox.fontSize, fontFamily: getFont(config.postageBox.bold), lineHeight: 1.15 }}>U.S. POSTAGE PAID</Text>
+                      <Text style={{ fontSize: config.postageBox.fontSize, fontFamily: getFont(config.postageBox.bold), lineHeight: 1.15 }}>ATFM</Text>
+                      <Text style={{ fontSize: config.postageBox.fontSize, fontFamily: getFont(config.postageBox.bold), lineHeight: 1.15 }}>e-Postage</Text>
                     </View>
                   </View>
                 </View>
@@ -221,7 +237,7 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                 <View
                   style={{
                     width: "100%",
-                    height: 1.2,
+                    height: 1.1,
                     backgroundColor: "#000",
                   }}
                 ></View>
@@ -233,9 +249,11 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                     flexDirection: "row",
                     alignItems: "flex-start",
                     justifyContent: "center",
-                    paddingVertical: 4,
+                    paddingVertical: 5,
                     paddingBottom: 6,
                     textAlign: "center",
+                    marginLeft: config.banner.offsetX,
+                    marginTop: config.banner.offsetY,
                   }}
                 >
                   <Text style={styles.boldBanner}>
@@ -261,15 +279,21 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                     flexDirection: "row",
                     alignItems: "flex-start",
                     justifyContent: "space-between",
-                    padding: 2,
-                    paddingHorizontal: 6,
+                    paddingTop: 4,
+                    paddingBottom: 2,
+                    paddingLeft: 8,
+                    paddingRight: 4,
                     width: "100%",
                   }}
                 >
                   <View
                     style={{
-                      fontSize: "8.8px",
+                      fontSize: config.senderAddress.fontSize,
+                      fontFamily: getFont(config.senderAddress.bold),
                       textTransform: "uppercase",
+                      lineHeight: 1.25,
+                      marginLeft: config.senderAddress.offsetX,
+                      marginTop: config.senderAddress.offsetY,
                     }}
                   >
                     <Text>{data[0]}</Text>
@@ -278,13 +302,16 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                   </View>
                   <View
                     style={{
-                      fontSize: "8px",
+                      fontSize: config.dateWeight.fontSize,
+                      fontFamily: getFont(config.dateWeight.bold),
                       textAlign: "right",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "flex-end",
                       justifyContent: "flex-end",
-                      marginTop: 2,
+                      lineHeight: 1.25,
+                      marginTop: config.dateWeight.offsetY,
+                      marginRight: -config.dateWeight.offsetX,
                     }}
                   >
                     <Text>{getCurrentMonthYearFormatted(data)}</Text>
@@ -300,22 +327,23 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                     flexDirection: "row",
                     alignItems: "flex-start",
                     width: "100%",
-                    textTransform: "uppercase",
                     gap: 10,
-                    paddingHorizontal: 8,
-                    marginTop: 22,
+                    paddingLeft: 10,
+                    paddingRight: 8,
+                    marginTop: config.shipTo.marginTop + config.shipTo.offsetY,
+                    marginLeft: config.shipTo.offsetX,
                   }}
                 >
-                  <View style={{ width: "12%" }}>
-                    <Text style={{ fontSize: "9.5px" }}>SHIP</Text>
-                    <Text style={{ fontSize: "9.5px" }}>TO:</Text>
+                  <View style={{ textTransform: "uppercase", lineHeight: 1.25 }}>
+                    <Text style={{ fontSize: config.shipTo.labelFontSize, fontFamily: getFont(config.shipTo.bold), marginBottom: 4 }}>SHIP</Text>
+                    <Text style={{ fontSize: config.shipTo.labelFontSize, fontFamily: getFont(config.shipTo.bold) }}>TO:</Text>
                   </View>
-                  <View style={{ fontSize: "10px", color: "black", flex: 1 }}>
+                  <View style={{ fontSize: config.shipTo.addressFontSize, fontFamily: getFont(config.shipTo.bold), color: "black", flex: 1, lineHeight: 1.25 }}>
                     <Text>{data[8]}</Text>
-                    {data[9] && <Text>{data[9]}</Text>}
-                    <Text>{data[10]}</Text>
-                    {data[11] && <Text>{data[11]}</Text>}
-                    <Text>{`${data[12]} ${data[13]} ${zipArea}`}</Text>
+                    {data[9] && <Text style={{ textTransform: "uppercase" }}>{data[9]}</Text>}
+                    <Text style={{ textTransform: "uppercase" }}>{data[10]}</Text>
+                    {data[11] && <Text style={{ textTransform: "uppercase" }}>{data[11]}</Text>}
+                    <Text style={{ textTransform: "uppercase" }}>{`${data[12]} ${data[13]} ${zipArea}`}</Text>
                   </View>
                 </View>
 
@@ -335,7 +363,13 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                     }}
                   ></View>
                   <View style={{ paddingVertical: 3, paddingTop: 3 }}>
-                    <Text style={styles.trackingHeader}>
+                    <Text
+                      style={{
+                        ...styles.trackingHeader,
+                        marginLeft: config.trackingHeader.offsetX,
+                        marginTop: config.trackingHeader.offsetY,
+                      }}
+                    >
                       USPS TRACKING # EP
                     </Text>
 
@@ -343,10 +377,13 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                       style={{
                         flexDirection: "row",
                         justifyContent: "center",
-                        height: 68,
-                        width: 250,
+                        height: config.barcode.height,
+                        width: config.barcode.width,
                         marginHorizontal: "auto",
-                        paddingVertical: 3,
+                        paddingTop: 3,
+                        paddingBottom: 0,
+                        marginLeft: config.barcode.offsetX ? config.barcode.offsetX : undefined,
+                        marginTop: config.barcode.offsetY || undefined,
                       }}
                     >
                       {barcodeTwo && (
@@ -356,7 +393,14 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                         />
                       )}
                     </View>
-                    <Text style={styles.trackingNumber}>
+                    <Text
+                      style={{
+                        ...styles.trackingNumber,
+                        letterSpacing: 0.2,
+                        marginLeft: config.trackingNumber.offsetX,
+                        marginTop: config.trackingNumber.offsetY,
+                      }}
+                    >
                       {formattedValue}
                     </Text>
                   </View>
@@ -367,19 +411,18 @@ const USPS_Ground_Advantage_Cubic_Copy = ({ csvData }) => {
                       backgroundColor: "#000",
                     }}
                   ></View>
-                  {data[20] && data[20].length && (
-                    <Text
-                      style={{
-                        fontSize: "9px",
-                        fontFamily: "Helvetica-Bold",
-                        marginTop: 14,
-                        marginBottom: 24,
-                        paddingLeft: 6,
-                      }}
-                    >
-                      {data[20]}
-                    </Text>
-                  )}
+                  <Text
+                    style={{
+                      fontSize: config.description.fontSize,
+                      fontFamily: getFont(config.description.bold),
+                      marginTop: config.description.marginTop + (config.description.offsetY || 0),
+                      marginBottom: config.description.marginBottom,
+                      paddingLeft: 1 + (config.description.offsetX || 0),
+                      opacity: data[20] && String(data[20]).trim().length > 0 ? 1 : 0,
+                    }}
+                  >
+                    {data[20] && String(data[20]).trim().length > 0 ? data[20] : " "}
+                  </Text>
                 </View>
               </View>
             </Page>
