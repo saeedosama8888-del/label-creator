@@ -185,7 +185,7 @@ const getColValue = (row, colNames, fallbackIdx = -1) => {
     val = String(row[fallbackIdx] ?? "").trim();
   }
 
-  return sanitizeCode(val) || val;
+  return val;
 };
 
 const USPS_SCAN_Form_5630 = ({ csvData }) => {
@@ -223,20 +223,24 @@ const USPS_SCAN_Form_5630 = ({ csvData }) => {
   let groundAdvantageCount = parseInt(groundVal, 10) || 0;
 
   // Tracking number from Tracking column
-  let firstTrackingNumber = getColValue(firstRow, ["Tracking", "Tracking Number", "TrackingNumber", "Tracking #", "Barcode"], 23);
+  let firstTrackingNumber = sanitizeCode(
+    getColValue(firstRow, ["Tracking", "Tracking Number", "TrackingNumber", "Tracking #", "Barcode"], 23)
+  );
 
   // Fallback search across csvData rows if tracking not in first row
   const trackingRegex = /^\d{16,34}$/;
   if (!firstTrackingNumber && Array.isArray(csvData)) {
     for (const row of csvData) {
-      const track = getColValue(row, ["Tracking", "Tracking Number", "TrackingNumber", "Tracking #", "Barcode"], 23);
+      const track = sanitizeCode(
+        getColValue(row, ["Tracking", "Tracking Number", "TrackingNumber", "Tracking #", "Barcode"], 23)
+      );
       if (track && trackingRegex.test(track)) {
         firstTrackingNumber = track;
         break;
       }
       if (Array.isArray(row)) {
         for (let i = row.length - 1; i >= 0; i--) {
-          const val = String(row[i] || "").trim();
+          const val = sanitizeCode(row[i]);
           if (trackingRegex.test(val)) {
             firstTrackingNumber = val;
             break;

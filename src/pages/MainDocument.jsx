@@ -29,6 +29,7 @@ import Wallmart_USPS_Priority_Mail_Copy from "./Wallmart_USPS_Priority_Mail_Copy
 import Wallmart_USPS_Ground_Advantage_Copy from "./Wallmart_USPS_Ground_Advantage_Copy";
 import USPS_Ground_Advantage_3_Copy from "./USPS_GROUND_ADVANTAGE_3_Copy";
 import USPS_Api_Priority_Mail from "./USPS_Api_Priority_Mail";
+import USPS_Api_Priority_Mail_Slip from "./USPS_Api_Priority_Mail_Slip";
 import USPS_Api_Priority_Mail_C1 from "./USPS_Api_Priority_Mail_C1";
 import USPS_Api_Priority_Mail_C1_One_GS from "./USPS_Api_Priority_Mail_C1_One_GS";
 import USPS_Ground_Advantage_Copy from "./USPS_GROUND_ADVANTAGE_Copy";
@@ -74,6 +75,8 @@ const getSelectedDocument = (selectedOption, csvData, templateConfig) => {
       return <USPS_Ground_Advantage_3_Copy csvData={csvData} />;
     case "USPS api priority mail":
       return <USPS_Api_Priority_Mail csvData={csvData} />;
+    case "USPS api priority mail + Slip":
+      return <USPS_Api_Priority_Mail_Slip csvData={csvData} />;
     case "USPS api priority mail C1":
       return <USPS_Api_Priority_Mail_C1 csvData={csvData} />;
     case "USPS api priority mail C1 One GS":

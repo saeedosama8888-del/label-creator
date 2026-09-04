@@ -25,6 +25,7 @@ const templateOptions = [
   { value: "USPS Ground Advantage 3", label: "USPS.com Ground APIs + Slip" },
   { value: "USPS Ground Advantage 3 Copy", label: "USPS.com Ground APIs Copy" },
   { value: "USPS api priority mail", label: "USPS api priority mail" },
+  { value: "USPS api priority mail + Slip", label: "USPS api priority mail + Slip" },
   { value: "USPS api priority mail C1", label: "USPS api priority mail C1" },
   { value: "USPS api priority mail C1 One GS", label: "USPS api priority mail C1 One GS" },
   { value: "Click n ship ground", label: "Click n ship ground" },
